@@ -1,26 +1,33 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { expandCommand, helloCommand, importCommand, tsCommand } from './commands';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "ri-vscode" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('ri-vscode.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from ri-vscode!');
-	});
-
-	context.subscriptions.push(disposable);
+interface ChatAgentResult extends vscode.ChatAgentResult2 {
+	slashCommand: string;
 }
 
-// This method is called when your extension is deactivated
+
+
+
+export function activate(context: vscode.ExtensionContext) {
+
+
+
+	//#region command subscriptions
+	console.log('Congratulations, your extension "ri-vscode" is now active!');
+
+	const helloSub = vscode.commands.registerCommand('ri-vscode.helloWorld', helloCommand);
+	context.subscriptions.push(helloSub);
+
+	const expandSub = vscode.commands.registerCommand('ri-vscode.expandType', expandCommand);
+	context.subscriptions.push(expandSub);
+
+	const tsSub = vscode.commands.registerCommand('ri-vscode.tsPlayground', tsCommand);
+	context.subscriptions.push(tsSub);
+
+	const importSub = vscode.commands.registerCommand('ri-vscode.importRIExpo', importCommand);
+	context.subscriptions.push(importSub);
+	//#endregion subscriptions
+}
+
 export function deactivate() {}
