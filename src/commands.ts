@@ -229,21 +229,21 @@ async function findExportsInProject(searchStr: string, program: ts.Program) {
 }
 //#endregion
 
-	// Listen for diagnostic changes ***
-	vscode.languages.onDidChangeDiagnostics((event) => {
-		// console.log('diagnostics changed!');
-		event.uris.forEach((uri) => {
-			const diagnostics = vscode.languages.getDiagnostics(uri);
-			diagnostics.forEach((diagnostic) => {
-				// Filter for TypeScript errors
-				if (diagnostic.source === 'ts') {
-					// Take action on the TypeScript error
-					// console.log('diagnostic msg: ', diagnostic.message, 'diagnostic: ', diagnostic);
-					// Additional actions here
-				}
-			});
-		});
-	});
+	// // Listen for diagnostic changes ***
+	// vscode.languages.onDidChangeDiagnostics((event) => {
+	// 	// console.log('diagnostics changed!');
+	// 	event.uris.forEach((uri) => {
+	// 		const diagnostics = vscode.languages.getDiagnostics(uri);
+	// 		diagnostics.forEach((diagnostic) => {
+	// 			// Filter for TypeScript errors
+	// 			if (diagnostic.source === 'ts') {
+	// 				// Take action on the TypeScript error
+	// 				// console.log('diagnostic msg: ', diagnostic.message, 'diagnostic: ', diagnostic);
+	// 				// Additional actions here
+	// 			}
+	// 		});
+	// 	});
+	// });
 
 
 export const helloCommand = () => {
@@ -311,6 +311,19 @@ export const importCommand = async () => {
 	vscode.window.showInformationMessage(`import command finished`);
 };
 
+
+export const organizeAllImportsCommand = async () => {
+	console.log('organizing imports');
+	const tsFiles = await vscode.workspace.findFiles('**/*.{ts,tsx}', '**/node_modules/**');
+	console.log('found ts files --- length: ', tsFiles.length, 'files: ', tsFiles);
+	for (const file of tsFiles) {
+		const document = await vscode.workspace.openTextDocument(file);
+		await vscode.window.showTextDocument(document);
+		await vscode.commands.executeCommand('editor.action.organizeImports');
+	}
+	await vscode.workspace.saveAll();
+	vscode.window.showInformationMessage("Finished Organizing! Imports organized and files saved for all '.ts' and '.tsx' files in the workspace.");
+};
 
 
 

@@ -39,6 +39,10 @@
       {
         "command": "ri-vscode.importRIExpo",
         "title": "RI: Import RI Expo"
+      },
+      {
+        "command": "ri-vscode.organizeImports",
+        "title": "RI: Organize Imports"
       }
     ]
   },

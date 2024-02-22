@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { expandCommand, helloCommand, importCommand, tsCommand } from './commands';
+import { expandCommand, helloCommand, importCommand, organizeAllImportsCommand, tsCommand } from './commands';
 
 
 interface ChatAgentResult extends vscode.ChatAgentResult2 {
@@ -10,8 +10,6 @@ interface ChatAgentResult extends vscode.ChatAgentResult2 {
 
 
 export function activate(context: vscode.ExtensionContext) {
-
-
 
 	//#region command subscriptions
 	console.log('Congratulations, your extension "ri-vscode" is now active!');
@@ -27,6 +25,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const importSub = vscode.commands.registerCommand('ri-vscode.importRIExpo', importCommand);
 	context.subscriptions.push(importSub);
+
+	const organizeImportsSub = vscode.commands.registerCommand('ri-vscode.organizeImports', organizeAllImportsCommand);
+	context.subscriptions.push(organizeImportsSub);
 	//#endregion subscriptions
 }
 
