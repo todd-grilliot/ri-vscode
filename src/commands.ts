@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import ts, { Statement, SyntaxKind } from 'typescript';
+import fs from 'fs';
 
 type SyntaxKindString = keyof typeof SyntaxKind;
 
@@ -324,6 +325,105 @@ export const organizeAllImportsCommand = async () => {
 	await vscode.workspace.saveAll();
 	vscode.window.showInformationMessage("Finished Organizing! Imports organized and files saved for all '.ts' and '.tsx' files in the workspace.");
 };
+
+export const listTypescriptErrorsCommand = async () => {
+	console.log('listing typescript errors');
+	const tsFiles = await vscode.workspace.findFiles('**/*.{ts,tsx}', '**/node_modules/**');
+	console.log('found ts files --- length: ', tsFiles.length, 'files: ', tsFiles);
+
+	// tsFiles.forEach((file) => {
+	let count = 0;
+	for (const file of tsFiles) {
+		if(count > 20) break;
+		const document = await vscode.workspace.openTextDocument(file);
+		await vscode.window.showTextDocument(document, {preview: false});
+
+		// await vscode.commands.executeCommand('editor.action.goToNextProblem');
+	};
+
+	const diagnostics = vscode.languages.getDiagnostics();
+	console.log('diagnostics: ', diagnostics);
+	// const tsErrors = diagnostics.filter(diagnostic => diagnostic.source === 'ts');
+	// console.log('tsErrors: ', tsErrors);
+
+
+	// const tsConfigs = await vscode.workspace.findFiles('**/tsconfig.json', '**/node_modules/**');
+	// console.log('found tsconfig files --- length: ', tsConfigs.length, 'files: ', tsConfigs);
+	// const tsConfig = tsConfigs[0];
+	// const tsConfigDocument = await vscode.workspace.openTextDocument(tsConfig);
+	// const tsConfigText = tsConfigDocument.getText();
+	// // const tsConfigObj = JSON.parse(tsConfigText);
+	// const tsOptions: ts.CompilerOptions = {
+	// 	strict: true,
+	// 	noImplicitAny: false,
+	// 	allowSyntheticDefaultImports: true,
+	// 	noErrorTruncation: true,
+	// 	allowJs: true,
+	// 	esModuleInterop: true,
+	// 	jsx: ts.JsxEmit.ReactNative,
+	// 	lib: ["DOM", "ESNext"],
+	// 	moduleResolution: ts.ModuleResolutionKind.NodeNext,
+	// 	noEmit: true,
+	// 	resolveJsonModule: true,
+	// 	skipLibCheck: true,
+	// 	target: ts.ScriptTarget.ESNext
+	// }
+
+	// console.log('tsConfigObj: ', tsOptions);
+	// const tsConfigPath = tsConfig.fsPath;
+	// const program = ts.createProgram({
+	// 	rootNames: tsFiles.map(file => file.fsPath),
+	// 	options: tsOptions,
+	// });
+	// console.log('program: node count, names', program.getNodeCount(), program.getRootFileNames());
+	// const diagnostics = ts.getPreEmitDiagnostics(program);
+	// console.log('diagnostics: ', diagnostics);
+	// // diagnostics.forEach((diagnostic) => {
+	// // 	console.log('diagnostic: ', diagnostic);
+	// // });
+};
+
+export const diagnosticsToCSVCommand = async () => {
+	console.log('diagnostics to csv');
+	const diagnostics = vscode.languages.getDiagnostics();
+	console.log('diagnostics: ', diagnostics);
+
+	const errorList = diagnostics.reduce((acc, diagnostic) => {
+		const uri = diagnostic[0];
+		const errors = diagnostic[1];
+		const file = uri.fsPath;
+		const fileErrors = errors.reduce((_acc, error) => {
+			const range = error.range;
+			const start = `${range.start.line + 1}:${range.start.character + 1}`;
+			const end = `${range.end.line + 1}:${range.end.character + 1}`;
+			const message = error.message.replace(/"/g, "'").replace(/\n/g, ' ').slice(0, 100);
+			const severity = error.severity === 0 ? 'error' : 'warning';
+			const row = `"${file.slice(72)}","${start}","${end}","${message}","${severity}"`
+			if (error.source !== 'ts' || file.includes('playground')) return _acc;
+			return row + "\n" + _acc;
+		}, '');
+		return acc + fileErrors;
+	}, '');
+	const headers = 'file,start,end,message,severity\n';
+	const csv = headers + errorList;
+
+	console.log('csv string: ', csv);
+
+	const csvPath = 'D:\\Users\\tgrilliot\\source\\repos\\ri-vscode\\errorList.csv'
+
+	fs.writeFile(csvPath, csv, (err) => {
+		if (err) {
+			vscode.window.showErrorMessage('Error writing to file');
+			console.error('error writing to file: ', err);
+			return;
+		}
+		vscode.window.showInformationMessage('CSV file written successfully');
+		console.log('file written successfully');
+	});
+
+
+
+}
 
 
 

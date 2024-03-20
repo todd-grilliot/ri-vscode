@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { expandCommand, helloCommand, importCommand, organizeAllImportsCommand, tsCommand } from './commands';
+import { diagnosticsToCSVCommand, expandCommand, helloCommand, importCommand, listTypescriptErrorsCommand, organizeAllImportsCommand, tsCommand } from './commands';
 
 
 interface ChatAgentResult extends vscode.ChatAgentResult2 {
@@ -28,6 +28,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const organizeImportsSub = vscode.commands.registerCommand('ri-vscode.organizeImports', organizeAllImportsCommand);
 	context.subscriptions.push(organizeImportsSub);
+
+	const listTypescriptErrorsSub = vscode.commands.registerCommand('ri-vscode.listTypescriptErrors', listTypescriptErrorsCommand);
+	context.subscriptions.push(listTypescriptErrorsSub);
+
+	const diagnosticCSVSub = vscode.commands.registerCommand('ri-vscode.diagnosticsCSV', diagnosticsToCSVCommand);
 	//#endregion subscriptions
 }
 
